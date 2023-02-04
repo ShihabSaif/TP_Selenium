@@ -29,6 +29,15 @@ public class rocket {
         propFile = prop.envAndFile();
     }
 
+    public void accountAndPinInput()
+    {
+        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
+        mobileAccount.sendKeys(propFile.get("account"));
+
+        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
+        pin.sendKeys(propFile.get("pin"));
+    }
+
     @Test
     public void rocketTxn()
     {
@@ -36,11 +45,7 @@ public class rocket {
         //navigate to rocket link
         driver.navigate().to(propFile.get("url"));
 
-        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
-        mobileAccount.sendKeys(propFile.get("account"));
-
-        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
-        pin.sendKeys(propFile.get("pin"));
+        accountAndPinInput();
 
         WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
         submitBtn.submit();

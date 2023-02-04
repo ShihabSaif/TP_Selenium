@@ -25,6 +25,15 @@ public class cc_by_rocket {
         propFile = prop.envAndFile();
     }
 
+    public void accountAndPinInput()
+    {
+        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
+        mobileAccount.sendKeys(propFile.get("account"));
+
+        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
+        pin.sendKeys(propFile.get("pin"));
+    }
+
     @Test
     public void cc_rocket_txn() throws InterruptedException {
         //navigate to credit collection link
@@ -37,16 +46,13 @@ public class cc_by_rocket {
         WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
         submitButton.submit();
 
+        //select payment media as ROCKET
         WebElement RocketMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[6]/div[2]/button"));
         RocketMedia.click();
 
         Thread.sleep(5000);
 
-        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
-        mobileAccount.sendKeys(propFile.get("account"));
-
-        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
-        pin.sendKeys(propFile.get("pin"));
+        accountAndPinInput();
 
         WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
         submitBtn.submit();
