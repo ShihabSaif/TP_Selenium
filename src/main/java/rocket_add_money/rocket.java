@@ -18,20 +18,15 @@ public class rocket {
     WebDriver driver;
 
     public static Properties propMain = new Properties();
-    public static Map<String, String> fileAndEnv = new HashMap<String ,String>();
-    public static Map<String, String> envAndFile() throws IOException {
-        FileInputStream fisDev = new FileInputStream("D:/nobopay/CreditCollection/src/main/java/rocket_add_money/rocket.properties");
-        propMain.load(fisDev);
-        fileAndEnv.put("url", propMain.getProperty("url"));
-        fileAndEnv.put("account", propMain.getProperty("account"));
-        fileAndEnv.put("pin", propMain.getProperty("pin"));
-        return fileAndEnv;
-    }
+
+    public static Map<String, String> propFile = new HashMap<String ,String>();
+
+    properties_file_read prop = new properties_file_read();
 
     public rocket() throws IOException {
         System.setProperty("webdriver.chrome.driver", "C:/Users/Progoti/Downloads/chromedriver_win32/chromedriver.exe");
         driver = new ChromeDriver();
-        envAndFile();
+        propFile = prop.envAndFile();
     }
 
     @Test
@@ -39,13 +34,13 @@ public class rocket {
     {
 
         //navigate to rocket link
-        driver.navigate().to(fileAndEnv.get("url"));
+        driver.navigate().to(propFile.get("url"));
 
         WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
-        mobileAccount.sendKeys(fileAndEnv.get("account"));
+        mobileAccount.sendKeys(propFile.get("account"));
 
         WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
-        pin.sendKeys(fileAndEnv.get("pin"));
+        pin.sendKeys(propFile.get("pin"));
 
         WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
         submitBtn.submit();
