@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -84,8 +85,46 @@ public class nagad {
         pin_4.sendKeys(propFile.get("pin_4"));
     }
 
+    public Connection dbConnection() throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+
+        Class.forName("org.postgresql.Driver");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/nobopay_payment_gw", "shihab", "shihab@007!");
+
+        if (conn != null)
+        {
+            System.out.println("connection established" + "\n");
+        }
+        else {
+            System.out.println("connection failed");
+        }
+        return conn;
+    }
+
+    public boolean checkStatus() throws SQLException, ClassNotFoundException {
+        Connection conn = dbConnection();
+        Statement statement;
+        ResultSet rs;
+        String query = String.format("select * from nagad_txn nt ORDER BY id DESC LIMIT 1");
+        statement = conn.createStatement();
+        rs = statement.executeQuery(query);
+        while (rs.next())
+        {
+            System.out.println(rs.getString("status"));
+            System.out.println(rs.getString("id"));
+            if(rs.getString("status") == "SUCCESS")
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Test
-    public void nagadTxn() throws InterruptedException, IOException, ParseException {
+    public void nagadTxn() throws InterruptedException, IOException, ParseException, SQLException, ClassNotFoundException {
         driver.navigate().to(propFile.get("nagad_add_money_url"));
 
         accountInput();
@@ -112,6 +151,13 @@ public class nagad {
         WebElement egiyeJanBtn_after_pin = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
         egiyeJanBtn_after_pin.submit();
 
-
+        if(checkStatus() == true)
+        {
+            System.out.println("PASSED");
+        }
+        else
+        {
+            System.out.println("FAILED");
+        }
     }
 }

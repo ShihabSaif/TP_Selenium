@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -39,8 +40,7 @@ public class rocket {
     }
 
     @Test
-    public void rocketTxn()
-    {
+    public void rocketTxn() throws SQLException, ClassNotFoundException, InterruptedException {
 
         //navigate to rocket link
         driver.navigate().to(propFile.get("url"));
@@ -49,6 +49,54 @@ public class rocket {
 
         WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
         submitBtn.submit();
+
+        Thread.sleep(5000);
+
+        if(checkStatus() == true)
+        {
+            System.out.println("PASSED");
+        }
+        else {
+            System.out.println("FAILED");
+        }
     }
 
+    public Connection dbConnection() throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+
+        Class.forName("org.postgresql.Driver");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/nobopay_payment_gw", "shihab", "shihab@007!");
+
+        if (conn != null)
+        {
+            System.out.println("connection established" + "\n");
+        }
+        else {
+            System.out.println("connection failed");
+        }
+        return conn;
+    }
+
+    public boolean checkStatus() throws SQLException, ClassNotFoundException {
+        Connection conn = dbConnection();
+        Statement statement;
+        ResultSet rs;
+        String query = String.format("select * from dbbl_transaction dt ORDER BY id DESC LIMIT 1");
+        statement = conn.createStatement();
+        rs = statement.executeQuery(query);
+        while (rs.next())
+        {
+            System.out.println(rs.getString("status"));
+            System.out.println(rs.getString("id"));
+            if(rs.getString("status") == "SUCCESS")
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
 }
+
