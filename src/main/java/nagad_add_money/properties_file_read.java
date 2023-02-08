@@ -29,6 +29,7 @@ public class properties_file_read {
         fileAndEnv.put("pin_2", propMain.getProperty("pin_2"));
         fileAndEnv.put("pin_3", propMain.getProperty("pin_3"));
         fileAndEnv.put("pin_4", propMain.getProperty("pin_4"));
+        fileAndEnv.put("wrong_pin_4", propMain.getProperty("wrong_pin_4"));
         return fileAndEnv;
     }
 }

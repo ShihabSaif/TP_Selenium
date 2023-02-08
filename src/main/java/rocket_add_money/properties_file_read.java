@@ -16,6 +16,7 @@ public class properties_file_read {
         fileAndEnv.put("url", propMain.getProperty("url"));
         fileAndEnv.put("account", propMain.getProperty("account"));
         fileAndEnv.put("pin", propMain.getProperty("pin"));
+        fileAndEnv.put("wrong_pin", propMain.getProperty("wrong_pin"));
         return fileAndEnv;
     }
 }

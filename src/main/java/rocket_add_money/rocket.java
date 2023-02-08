@@ -39,6 +39,15 @@ public class rocket {
         pin.sendKeys(propFile.get("pin"));
     }
 
+    public void accountAndPinInputForFailed()
+    {
+        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
+        mobileAccount.sendKeys(propFile.get("account"));
+
+        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
+        pin.sendKeys(propFile.get("wrong_pin"));
+    }
+
     @Test
     public void rocketTxn() throws SQLException, ClassNotFoundException, InterruptedException {
 
@@ -58,6 +67,28 @@ public class rocket {
         }
         else {
             System.out.println("FAILED");
+        }
+    }
+
+    @Test
+    public void rocketTxnForFailed() throws SQLException, ClassNotFoundException, InterruptedException {
+
+        //navigate to rocket link
+        driver.navigate().to(propFile.get("url"));
+
+        accountAndPinInputForFailed();
+
+        WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
+        submitBtn.submit();
+
+        Thread.sleep(3000);
+
+        if(checkStatusForFailed() == true)
+        {
+            System.out.println("FAILED, Expected");
+        }
+        else if(checkStatusForFailed() == false) {
+            System.out.println("Not FAILED, Unexpected");
         }
     }
 
@@ -89,6 +120,27 @@ public class rocket {
             System.out.println(rs.getString("status"));
             System.out.println(rs.getString("id"));
             if(rs.getString("status") == "SUCCESS")
+            {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkStatusForFailed() throws SQLException, ClassNotFoundException {
+        Connection conn = dbConnection();
+        Statement statement;
+        ResultSet rs;
+        String query = String.format("select * from dbbl_transaction dt ORDER BY id DESC LIMIT 1");
+        statement = conn.createStatement();
+        rs = statement.executeQuery(query);
+        while (rs.next())
+        {
+            System.out.println(rs.getString("status"));
+            if(rs.getString("status").contentEquals("FAILED"))
             {
                 return true;
             }
