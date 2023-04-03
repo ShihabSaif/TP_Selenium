@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
@@ -21,21 +22,11 @@ public class cc_by_rocket {
     properties_file_read prop = new properties_file_read();
 
     public cc_by_rocket() throws IOException {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Progoti\\Downloads\\chromedriver_win32\\chromedriver.exe");
-        driver = new ChromeDriver();
+        System.setProperty("webdriver.chrome.driver", "E:\\chromedriver_win32_version_111\\chromedriver.exe");
+        ChromeOptions chromeOpt = new ChromeOptions();
+        chromeOpt.addArguments("--remote-allow-origins=*");
+        driver = new ChromeDriver(chromeOpt);
         propFile = prop.envAndFile();
-    }
-
-    public void accountAndPinInput()
-    {
-        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
-        mobileAccount.sendKeys(propFile.get("account"));
-        System.out.println("account : " + propFile.get("account"));
-
-        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
-        pin.sendKeys(propFile.get("pin"));
-        System.out.println("pin : " + propFile.get("pin"));
-
     }
 
     public void accountAndPinInputForFailed()
@@ -47,64 +38,75 @@ public class cc_by_rocket {
         pin.sendKeys(propFile.get("wrong_pin"));
     }
 
-    @Test
-    public void cc_rocket_txn() throws InterruptedException, SQLException, ClassNotFoundException {
-        //navigate to credit collection link
+    @Test(priority = 0)
+    public void navigate_to_cc_page_01() throws InterruptedException {
         driver.navigate().to(propFile.get("url"));
         String title = driver.getTitle();
-
-        WebElement amountField = driver.findElement(By.name("amount"));
-        amountField.sendKeys(propFile.get("amount"));
-
-        WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
-        submitButton.submit();
-
-        //select payment media as ROCKET
-        WebElement RocketMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[6]/div[2]/button"));
-        RocketMedia.click();
+        System.out.println("title is : " + title);
 
         Thread.sleep(3000);
-
-        accountAndPinInput();
-
-        WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
-        submitBtn.submit();
-
-        WebElement successId = driver.findElement(By.xpath("/html/body/div[2]/div[5]/div[2]"));
-        String successIdValue = successId.getText();
-        checkStatus(successIdValue);
     }
 
-    @Test
-    public void cc_rocket_txn_for_failed() throws InterruptedException, SQLException, ClassNotFoundException {
-        //navigate to credit collection link
-        driver.navigate().to(propFile.get("url"));
-        String title = driver.getTitle();
+    @Test(priority = 1)
+    public void tap_porishodh_kori_button_02() throws InterruptedException {
+        WebElement porishodhKoriBtn = driver.findElement(By.xpath("/html/body/div[1]/div/div[5]/div[3]/a/span"));
+        porishodhKoriBtn.click();
 
+        Thread.sleep(3000);
+    }
+
+    @Test(priority = 2)
+    public void give_amount_and_proceed_to_payment_media_03() throws InterruptedException {
         WebElement amountField = driver.findElement(By.name("amount"));
         amountField.sendKeys(propFile.get("amount"));
 
         WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
         submitButton.submit();
 
-        //select payment media as ROCKET
-        WebElement RocketMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[6]/div[2]/button"));
+        Thread.sleep(3000);
+    }
+
+    @Test(priority = 3)
+    public void select_rocket_media_and_proceed_04() throws InterruptedException {
+        WebElement RocketMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[7]/div[2]/button/div[2]/div"));
         RocketMedia.click();
 
-        Thread.sleep(3000);
+        Thread.sleep(7000);
+    }
 
-        accountAndPinInputForFailed();
+    @Test(priority = 4)
+    public void account_and_pin_input_submit_05()
+    {
+        WebElement mobileAccount = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[3]/td[2]/input"));
+        mobileAccount.sendKeys(propFile.get("account"));
+
+        WebElement pin = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[5]/td[2]/input"));
+        pin.sendKeys(propFile.get("pin"));
 
         WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/form/div[2]/div[2]/div[1]/div/table/tbody/tr[10]/td/table/tbody/tr/td[2]/div/input"));
         submitBtn.submit();
+    }
 
-        if(checkStatusForFailed() == true)
+    String successIdValue="";
+    @Test(priority = 5)
+    public void check_success_page_06()
+    {
+        WebElement successId = driver.findElement(By.xpath("/html/body/div[2]/div[5]/div[2]"));
+        successIdValue = successId.getText();
+        System.out.println(successIdValue);
+    }
+
+    @Test(priority = 6)
+    public void check_rocket_txn_table_Status_07() throws SQLException, ClassNotFoundException {
+        Connection conn = dbConnection();
+        Statement statement;
+        ResultSet rs;
+        String query = String.format("select * from payment_rockettransactions pr where pr.rrn = '%s'", successIdValue);
+        statement = conn.createStatement();
+        rs = statement.executeQuery(query);
+        while (rs.next())
         {
-            System.out.println("FAILED, expected");
-        }
-        else
-        {
-            System.out.println("NOT FAILED, unexpected");
+            System.out.println(rs.getString("status"));
         }
     }
 
@@ -122,48 +124,6 @@ public class cc_by_rocket {
             System.out.println("connection failed");
         }
         return conn;
-    }
-
-    public boolean checkStatus(String id) throws SQLException, ClassNotFoundException {
-        Connection conn = dbConnection();
-        Statement statement;
-        ResultSet rs;
-        String query = String.format("select * from payment_rockettransactions pr where pr.rrn = '%s'", id);
-        statement = conn.createStatement();
-        rs = statement.executeQuery(query);
-        while (rs.next())
-        {
-            System.out.println(rs.getString("status"));
-            if(rs.getString("status") == "SUCCESS")
-            {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean checkStatusForFailed() throws SQLException, ClassNotFoundException {
-        Connection conn = dbConnection();
-        Statement statement;
-        ResultSet rs;
-        String query = String.format("select * from payment_creditcollection ORDER BY id DESC LIMIT 1");
-        statement = conn.createStatement();
-        rs = statement.executeQuery(query);
-        while (rs.next())
-        {
-            System.out.println(rs.getString("status"));
-            if(rs.getInt("status") == 4)
-            {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
     }
 
 }
