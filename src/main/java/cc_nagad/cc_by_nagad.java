@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
@@ -28,12 +29,68 @@ public class cc_by_nagad {
     cc_nagad.properties_file_read prop = new properties_file_read();
 
     public cc_by_nagad() throws IOException {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Progoti\\Downloads\\chromedriver_win32\\chromedriver.exe");
-        driver = new ChromeDriver();
+        System.setProperty("webdriver.chrome.driver", "E:\\chromedriver_win32_version_111\\chromedriver.exe");
+        ChromeOptions chromeOpt = new ChromeOptions();
+        chromeOpt.addArguments("--remote-allow-origins=*");
+        driver = new ChromeDriver(chromeOpt);
         propFile = prop.envAndFile();
     }
 
-    public void accountInput()
+
+    public Connection dbConnection() throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+
+        Class.forName("org.postgresql.Driver");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.41:5432/tallykhta_tusi", "shihab", "shihab@123");
+
+        if (conn != null)
+        {
+            System.out.println("connection established" + "\n");
+        }
+        else {
+            System.out.println("connection failed" + "\n");
+        }
+        return conn;
+    }
+
+    @Test(priority = 0)
+    public void navigate_to_cc_page_01() throws InterruptedException {
+        driver.navigate().to(propFile.get("url"));
+        String title = driver.getTitle();
+        System.out.println("title is : " + title);
+
+        Thread.sleep(3000);
+    }
+
+    @Test(priority = 1)
+    public void tap_porishodh_kori_button_02() throws InterruptedException {
+        WebElement porishodhKoriBtn = driver.findElement(By.xpath("/html/body/div[1]/div/div[5]/div[3]/a/span"));
+        porishodhKoriBtn.click();
+
+        Thread.sleep(3000);
+    }
+
+    @Test(priority = 2)
+    public void give_amount_and_proceed_to_payment_media_03() throws InterruptedException {
+        WebElement amountField = driver.findElement(By.name("amount"));
+        amountField.sendKeys(propFile.get("amount"));
+
+        WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
+        submitButton.submit();
+
+        Thread.sleep(3000);
+    }
+
+    @Test(priority = 3)
+    public void select_nagad_media_and_proceed_04() throws InterruptedException {
+        WebElement NagadMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[7]/div[3]/button/div[2]/div/span"));
+        NagadMedia.click();
+
+        Thread.sleep(4000);
+    }
+
+    @Test(priority = 4)
+    public void account_Input_and_proceed_05()
     {
         WebElement mobileAccount_01 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div[1]/input[1]"));
         mobileAccount_01.sendKeys(propFile.get("mobileAccount_01"));
@@ -67,9 +124,29 @@ public class cc_by_nagad {
 
         WebElement mobileAccount_11 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div[1]/input[11]"));
         mobileAccount_11.sendKeys(propFile.get("mobileAccount_11"));
+
+        WebElement egiyeJanBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
+        egiyeJanBtn.click();
     }
 
-    public void pinInput()
+    @Test(priority = 5)
+    public void otp_input_and_proceed_06() throws IOException, ParseException, InterruptedException {
+        Thread.sleep(18000);
+        JSONParser otpParse = new JSONParser();
+        Object obj = otpParse.parse(new FileReader("D:/nobopay/CreditCollection/src/main/java/nagad_add_money/otp.json"));
+        JSONObject jsonObject = (JSONObject)obj;
+        String otp = (String)jsonObject.get("otp");
+        System.out.println("otp is : " + otp);
+
+        WebElement otpInput = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/input"));
+        otpInput.sendKeys(otp);
+
+        WebElement egiyeJanBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
+        egiyeJanBtn.submit();
+    }
+
+    @Test(priority = 6)
+    public void pin_input_and_submit_07()
     {
         WebElement pin_1 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[1]"));
         pin_1.sendKeys(propFile.get("pin_1"));
@@ -82,181 +159,31 @@ public class cc_by_nagad {
 
         WebElement pin_4 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[4]"));
         pin_4.sendKeys(propFile.get("pin_4"));
+
+        WebElement egiyeJanBtn_after_pin = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
+        egiyeJanBtn_after_pin.submit();
     }
 
-    public void pinInputForFailed()
+    String successID = "";
+    @Test(priority = 7)
+    public void success_page_check_08()
     {
-        WebElement pin_1 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[1]"));
-        pin_1.sendKeys(propFile.get("pin_1"));
-
-        WebElement pin_2 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[2]"));
-        pin_2.sendKeys(propFile.get("pin_2"));
-
-        WebElement pin_3 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[3]"));
-        pin_3.sendKeys(propFile.get("pin_3"));
-
-        WebElement wrong_pin_4 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[4]"));
-        wrong_pin_4.sendKeys(propFile.get("wrong_pin_4"));
+        WebElement successPage = driver.findElement(By.xpath("/html/body/div[2]/div[5]/div[2]"));
+        successID = successPage.getText();
+        System.out.println(successID);
     }
 
-    public Connection dbConnection() throws ClassNotFoundException, SQLException {
-        Connection conn = null;
-
-        Class.forName("org.postgresql.Driver");
-        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.41:5432/tallykhta_tusi", "shihab", "shihab@123");
-
-        if (conn != null)
-        {
-            System.out.println("connection established" + "\n");
-        }
-        else {
-            System.out.println("connection failed" + "\n");
-        }
-        return conn;
-    }
-
-    public boolean checkStatus() throws SQLException, ClassNotFoundException {
+    @Test(priority = 8)
+    public void check_nagad_txn_table_Status_09() throws SQLException, ClassNotFoundException {
         Connection conn = dbConnection();
         Statement statement;
         ResultSet rs;
-        String query = String.format("select * from payment_nagadtransaction pr ORDER BY id DESC LIMIT 1");
+        String query = String.format("select * from payment_nagadtransaction pr where pr.issuer_payment_reference = '%s'", successID);
         statement = conn.createStatement();
         rs = statement.executeQuery(query);
         while (rs.next())
         {
             System.out.println(rs.getString("status"));
-            if(rs.getString("status") == "SUCCESS")
-            {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean checkStatusForFailed() throws SQLException, ClassNotFoundException {
-        Connection conn = dbConnection();
-        Statement statement;
-        ResultSet rs;
-        String query = String.format("select * from payment_nagadtransaction pr ORDER BY id DESC LIMIT 1");
-        statement = conn.createStatement();
-        rs = statement.executeQuery(query);
-        while (rs.next())
-        {
-            System.out.println(rs.getString("status"));
-            if(rs.getString("status").contentEquals("FAILED"))
-            {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Test
-    public void cc_nagad_txn() throws InterruptedException, IOException, ParseException, SQLException, ClassNotFoundException {
-        //navigate to credit collection link
-        driver.navigate().to(propFile.get("url"));
-        String title = driver.getTitle();
-
-        WebElement amountField = driver.findElement(By.name("amount"));
-        amountField.sendKeys(propFile.get("amount"));
-
-        WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
-        submitButton.submit();
-
-        WebElement NagadMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[6]/div[3]/button/div[2]"));
-        NagadMedia.click();
-
-        Thread.sleep(5000);
-
-        accountInput();
-
-        WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        submitBtn.submit();
-
-        Thread.sleep(10000);
-
-        JSONParser otpParse = new JSONParser();
-        Object obj = otpParse.parse(new FileReader("D:/nobopay/CreditCollection/src/main/java/nagad_add_money/otp.json"));
-        JSONObject jsonObject = (JSONObject)obj;
-        String otp = (String)jsonObject.get("otp");
-        System.out.println("otp is : " + otp);
-
-        WebElement otpInput = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/input"));
-        otpInput.sendKeys(otp);
-
-        WebElement egiyeJanBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        egiyeJanBtn.submit();
-
-        pinInput();
-
-        WebElement egiyeJanBtn_after_pin = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        egiyeJanBtn_after_pin.submit();
-
-        if(checkStatus() == true)
-        {
-            System.out.println("PASSED");
-        }
-        else
-        {
-            System.out.println("FAILED");
         }
     }
-
-    @Test
-    public void cc_nagad_txn_for_failed() throws InterruptedException, IOException, ParseException, SQLException, ClassNotFoundException {
-        //navigate to credit collection link
-        driver.navigate().to(propFile.get("url"));
-        String title = driver.getTitle();
-
-        WebElement amountField = driver.findElement(By.name("amount"));
-        amountField.sendKeys(propFile.get("amount"));
-
-        WebElement submitButton = driver.findElement(By.xpath("/html/body/div/div[1]/form/div[4]/button"));
-        submitButton.submit();
-
-        WebElement NagadMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[6]/div[3]/button/div[2]"));
-        NagadMedia.click();
-
-        Thread.sleep(5000);
-
-        accountInput();
-
-        WebElement submitBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        submitBtn.submit();
-
-        Thread.sleep(120000);
-
-        JSONParser otpParse = new JSONParser();
-        Object obj = otpParse.parse(new FileReader("D:/nobopay/CreditCollection/src/main/java/nagad_add_money/otp.json"));
-        JSONObject jsonObject = (JSONObject)obj;
-        String otp = (String)jsonObject.get("otp");
-        System.out.println("otp is : " + otp);
-
-        WebElement otpInput = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/input"));
-        otpInput.sendKeys(otp);
-
-        WebElement egiyeJanBtn = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        egiyeJanBtn.submit();
-
-        pinInputForFailed();
-
-        WebElement egiyeJanBtn_after_pin = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[3]/button[1]"));
-        egiyeJanBtn_after_pin.submit();
-
-        if(checkStatusForFailed() == true)
-        {
-            System.out.println("FAILED, as expected");
-        }
-        else
-        {
-            System.out.println("NOT FAILED, unexpected");
-        }
-    }
-
 }
