@@ -29,7 +29,7 @@ public class cc_by_nagad {
     cc_nagad.properties_file_read prop = new properties_file_read();
 
     public cc_by_nagad() throws IOException {
-        System.setProperty("webdriver.chrome.driver", "E:\\chromedriver_win32_version_111\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\chromedriver_win32_113_version\\chromedriver.exe");
         ChromeOptions chromeOpt = new ChromeOptions();
         chromeOpt.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(chromeOpt);
@@ -41,7 +41,7 @@ public class cc_by_nagad {
         Connection conn = null;
 
         Class.forName("org.postgresql.Driver");
-        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.41:5432/tallykhta_tusi", "shihab", "shihab@123");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/nobopay_payment_gw", "shihab", "shihab@123");
 
         if (conn != null)
         {
@@ -83,7 +83,7 @@ public class cc_by_nagad {
 
     @Test(priority = 3)
     public void select_nagad_media_and_proceed_04() throws InterruptedException {
-        WebElement NagadMedia = driver.findElement(By.xpath("/html/body/div/div[1]/div[7]/div[3]/button/div[2]/div/span"));
+        WebElement NagadMedia = driver.findElement(By.xpath("/html/body/div/div/div[8]/div[3]/button"));
         NagadMedia.click();
 
         Thread.sleep(4000);
@@ -133,7 +133,7 @@ public class cc_by_nagad {
     public void otp_input_and_proceed_06() throws IOException, ParseException, InterruptedException {
         Thread.sleep(18000);
         JSONParser otpParse = new JSONParser();
-        Object obj = otpParse.parse(new FileReader("D:/nobopay/CreditCollection/src/main/java/nagad_add_money/otp.json"));
+        Object obj = otpParse.parse(new FileReader("D:/Self_Study/CreditCollection/src/main/java/nagad_add_money/otp.json"));
         JSONObject jsonObject = (JSONObject)obj;
         String otp = (String)jsonObject.get("otp");
         System.out.println("otp is : " + otp);
@@ -170,7 +170,7 @@ public class cc_by_nagad {
     {
         WebElement successPage = driver.findElement(By.xpath("/html/body/div[2]/div[5]/div[2]"));
         successID = successPage.getText();
-        System.out.println(successID);
+        System.out.println("Txn ID is : " + successID);
     }
 
     @Test(priority = 8)
@@ -178,12 +178,12 @@ public class cc_by_nagad {
         Connection conn = dbConnection();
         Statement statement;
         ResultSet rs;
-        String query = String.format("select * from payment_nagadtransaction pr where pr.issuer_payment_reference = '%s'", successID);
+        String query = String.format("select * from nagad_txn pr where pr.tp_transaction_number = '%s'", successID);
         statement = conn.createStatement();
         rs = statement.executeQuery(query);
         while (rs.next())
         {
-            System.out.println(rs.getString("status"));
+            System.out.println("nagad_txn table status is : " + rs.getString("status"));
         }
     }
 }

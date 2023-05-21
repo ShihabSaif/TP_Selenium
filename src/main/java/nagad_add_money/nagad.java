@@ -29,7 +29,7 @@ public class nagad {
     properties_file_read prop = new properties_file_read();
 
     public nagad() throws IOException {
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\Progoti\\Downloads\\chromedriver_win32\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "E:\\chromedriver_win32_version_111\\chromedriver.exe");
         driver = new ChromeDriver();
         propFile = prop.envAndFile();
     }
@@ -104,7 +104,7 @@ public class nagad {
         Connection conn = null;
 
         Class.forName("org.postgresql.Driver");
-        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/nobopay_payment_gw", "shihab", "shihab@007!");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/nobopay_payment_gw", "shihab", "shihab@123");
 
         if (conn != null)
         {
