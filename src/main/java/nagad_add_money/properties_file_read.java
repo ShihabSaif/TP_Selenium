@@ -10,7 +10,7 @@ public class properties_file_read {
     public static Properties propMain = new Properties();
     public static Map<String, String> fileAndEnv = new HashMap<String ,String>();
     public static Map<String, String> envAndFile() throws IOException {
-        FileInputStream fisDev = new FileInputStream("D:\\nobopay\\CreditCollection\\src\\main\\java\\cc_nagad\\nagad.properties");
+        FileInputStream fisDev = new FileInputStream("D:\\Self_Study\\CreditCollection\\src\\main\\java\\cc_nagad\\nagad.properties");
         propMain.load(fisDev);
         fileAndEnv.put("nagad_add_money_url", propMain.getProperty("nagad_add_money_url"));
         fileAndEnv.put("amount", propMain.getProperty("amount"));
