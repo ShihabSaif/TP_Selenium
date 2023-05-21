@@ -53,6 +53,22 @@ public class cc_by_nagad {
         return conn;
     }
 
+    public Connection dbConnectionForNpTxnLog() throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+
+        Class.forName("org.postgresql.Driver");
+        conn = DriverManager.getConnection("jdbc:postgresql://10.9.0.77:5432/backend_db", "shihab", "shihab@123");
+
+        if (conn != null)
+        {
+            System.out.println("connection established for np_txn_log table" + "\n");
+        }
+        else {
+            System.out.println("connection failed for np_txn_log table" + "\n");
+        }
+        return conn;
+    }
+
     @Test(priority = 0)
     public void navigate_to_cc_page_01() throws InterruptedException {
         driver.navigate().to(propFile.get("url"));
@@ -131,7 +147,7 @@ public class cc_by_nagad {
 
     @Test(priority = 5)
     public void otp_input_and_proceed_06() throws IOException, ParseException, InterruptedException {
-        Thread.sleep(18000);
+        Thread.sleep(20000);
         JSONParser otpParse = new JSONParser();
         Object obj = otpParse.parse(new FileReader("D:/Self_Study/CreditCollection/src/main/java/nagad_add_money/otp.json"));
         JSONObject jsonObject = (JSONObject)obj;
@@ -146,8 +162,8 @@ public class cc_by_nagad {
     }
 
     @Test(priority = 6)
-    public void pin_input_and_submit_07()
-    {
+    public void pin_input_and_submit_07() throws InterruptedException {
+        Thread.sleep(3000);
         WebElement pin_1 = driver.findElement(By.xpath("/html/body/div/div/div[4]/form/div[1]/div/input[1]"));
         pin_1.sendKeys(propFile.get("pin_1"));
 
@@ -166,24 +182,59 @@ public class cc_by_nagad {
 
     String successID = "";
     @Test(priority = 7)
-    public void success_page_check_08()
-    {
+    public void success_page_check_08() throws InterruptedException {
+        Thread.sleep(3000);
         WebElement successPage = driver.findElement(By.xpath("/html/body/div[2]/div[5]/div[2]"));
         successID = successPage.getText();
         System.out.println("Txn ID is : " + successID);
     }
 
+    String nagad_txn_table_status = "";
     @Test(priority = 8)
-    public void check_nagad_txn_table_Status_09() throws SQLException, ClassNotFoundException {
+    public void check_nagad_txn_table_Status_09() throws SQLException, ClassNotFoundException, InterruptedException {
+        Thread.sleep(4000);
         Connection conn = dbConnection();
         Statement statement;
         ResultSet rs;
-        String query = String.format("select * from nagad_txn pr where pr.tp_transaction_number = '%s'", successID);
+        String query = "";
+        if(successID != "")
+        {
+            query = String.format("select * from nagad_txn pr where pr.tp_transaction_number = '%s'", successID);
+        }
+        else if(successID == "")
+        {
+            query = String.format("select * from nagad_txn pr ORDER BY id DESC LIMIT 1");
+        }
         statement = conn.createStatement();
         rs = statement.executeQuery(query);
         while (rs.next())
         {
-            System.out.println("nagad_txn table status is : " + rs.getString("status"));
+            nagad_txn_table_status = rs.getString("status");
+            System.out.println("nagad_txn table status is : " + nagad_txn_table_status);
+        }
+    }
+
+    @Test(priority = 9)
+    public void check_np_txn_log_table_Status_10() throws SQLException, ClassNotFoundException, InterruptedException {
+        Thread.sleep(4000);
+        Connection conn = dbConnectionForNpTxnLog();
+        Statement statement;
+        ResultSet rs;
+        statement = conn.createStatement();
+        String query = "";
+        if(nagad_txn_table_status.contentEquals("SUCCESS"))
+        {
+            query = String.format("select * from np_txn_log pr where pr.transaction_number = '%s'", successID);
+
+            rs = statement.executeQuery(query);
+            while (rs.next())
+            {
+                System.out.println("np_txn_log table status is : " + rs.getString("status"));
+            }
+        }
+        else
+        {
+            System.out.println("Failed Txn");
         }
     }
 }
